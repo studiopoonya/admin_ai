@@ -28,6 +28,8 @@ import ReimbursementForm from '@/Pages/ReimbursementForm';
 import Reimbursements from '@/Pages/backend/Reimbursements';
 import OperasionalSettings from '@/Pages/backend/OperasionalSettings';
 import CustomerDetail from '@/Pages/backend/CustomerDetail';
+import Database from '@/Pages/backend/Database';
+import PublicForm from '@/Pages/PublicForm';
 
 export default function App() {
     return (
@@ -36,6 +38,7 @@ export default function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login"    element={<Login />} />
+                    <Route path="/form/:token" element={<PublicForm />} />
                     <Route path="/booking" element={<BookingForm />} />
                     <Route path="/staff"   element={<StaffCheckin />} />
                     <Route path="/feedback" element={<FeedbackForm />} />
@@ -61,6 +64,7 @@ export default function App() {
                     <Route path="/reimbursements" element={<PrivateRoute><Reimbursements /></PrivateRoute>} />
                     <Route path="/op-settings"   element={<PrivateRoute><OperasionalSettings /></PrivateRoute>} />
                     <Route path="/customers/:id" element={<PrivateRoute><CustomerDetail /></PrivateRoute>} />
+                    <Route path="/database"     element={<PrivateRoute><Database /></PrivateRoute>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </BrowserRouter>

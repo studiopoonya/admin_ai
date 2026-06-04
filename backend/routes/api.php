@@ -23,6 +23,7 @@ use App\Http\Controllers\Backend\OpAssetsController;
 use App\Http\Controllers\Backend\PackageController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\TestAIController;
+use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +48,10 @@ Route::get('/staff-checkin/items',            [LogisticStaffController::class, '
 Route::get('/staff-checkin/active-checkout',  [LogisticStaffController::class, 'activeCheckout']);
 Route::get('/staff-checkin/upcoming-bookings',[LogisticStaffController::class, 'upcomingBookings']);
 Route::post('/staff-checkin',                 [LogisticStaffController::class, 'store']);
+
+// Public database form (no auth)
+Route::get('/public-form/{token}',  [PublicFormController::class, 'show']);
+Route::post('/public-form/{token}', [PublicFormController::class, 'submit']);
 
 // Auth
 Route::post('/login', [AuthController::class, 'login']);
@@ -87,6 +92,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/customers/{customer}/toggle-ai',      [CustomerController::class, 'toggleAI']);
     Route::post('/customers/{customer}/send',            [CustomerController::class, 'send']);
     Route::get('/customers/{customer}/followup-message', [CustomerController::class, 'followupMessage']);
+
+    // Database (Airtable-like)
+    Route::get('/user-databases',                                           [\App\Http\Controllers\Backend\DatabaseController::class, 'index']);
+    Route::post('/user-databases',                                          [\App\Http\Controllers\Backend\DatabaseController::class, 'store']);
+    Route::delete('/user-databases/{userDatabase}',                         [\App\Http\Controllers\Backend\DatabaseController::class, 'destroy']);
+    Route::get('/user-databases/{userDatabase}/data',                       [\App\Http\Controllers\Backend\DatabaseController::class, 'data']);
+    Route::post('/user-databases/{userDatabase}/columns',                   [\App\Http\Controllers\Backend\DatabaseController::class, 'addColumn']);
+    Route::patch('/user-databases/{userDatabase}/columns/{dbColumn}',       [\App\Http\Controllers\Backend\DatabaseController::class, 'updateColumn']);
+    Route::delete('/user-databases/{userDatabase}/columns/{dbColumn}',      [\App\Http\Controllers\Backend\DatabaseController::class, 'deleteColumn']);
+    Route::post('/user-databases/{userDatabase}/upload-image',              [\App\Http\Controllers\Backend\DatabaseController::class, 'uploadImage']);
+    Route::post('/user-databases/{userDatabase}/rows',                      [\App\Http\Controllers\Backend\DatabaseController::class, 'addRow']);
+    Route::patch('/user-databases/{userDatabase}/rows/{dbRow}',             [\App\Http\Controllers\Backend\DatabaseController::class, 'updateRow']);
+    Route::delete('/user-databases/{userDatabase}/rows/{dbRow}',            [\App\Http\Controllers\Backend\DatabaseController::class, 'deleteRow']);
+    Route::post('/user-databases/{userDatabase}/share-token',               [\App\Http\Controllers\PublicFormController::class, 'generateToken']);
+    Route::delete('/user-databases/{userDatabase}/share-token',             [\App\Http\Controllers\PublicFormController::class, 'revokeToken']);
+    Route::patch('/user-databases/{userDatabase}/share-alias',              [\App\Http\Controllers\PublicFormController::class, 'updateAlias']);
+    Route::patch('/user-databases/{userDatabase}/form-style',               [\App\Http\Controllers\Backend\DatabaseController::class, 'updateFormStyle']);
+    Route::post('/user-databases/{userDatabase}/form-logo',                 [\App\Http\Controllers\Backend\DatabaseController::class, 'uploadFormLogo']);
+    Route::delete('/user-databases/{userDatabase}/form-logo',               [\App\Http\Controllers\Backend\DatabaseController::class, 'deleteFormLogo']);
 
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index']);

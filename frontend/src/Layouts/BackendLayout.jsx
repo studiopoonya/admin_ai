@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // roles: which roles can see this item. divider: true = section label, not a link.
 const NAV_ITEMS = [
@@ -104,6 +104,11 @@ const NAV_ITEMS = [
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
         </svg>
     )},
+    { to: '/database', label: 'Database', roles: ['admin'], icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+    )},
     { to: '/test-ai', label: 'Test AI', roles: ['admin'], icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -122,6 +127,18 @@ export default function BackendLayout({ children }) {
     const location          = useLocation();
     const navigate          = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+    // Apply theme to document
+    useEffect(() => {
+        const html = document.documentElement;
+        if (theme === 'dark') {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+        localStorage.setItem('theme', theme);
+    }, [theme]);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [notifGranted, setNotifGranted] = useState(
         typeof Notification !== 'undefined' && Notification.permission === 'granted'
@@ -150,25 +167,25 @@ export default function BackendLayout({ children }) {
                 <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-lg flex-shrink-0">📸</div>
                 {(!collapsed || mobile) && (
                     <div>
-                        <p className="font-bold text-gray-900 text-sm leading-tight">Poonya Bot</p>
-                        <p className="text-[10px] text-gray-400">Photobooth Manager</p>
+                        <p className="font-bold text-gray-900 dark:text-white text-sm leading-tight">Poonya Bot</p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500">Photobooth Manager</p>
                     </div>
                 )}
             </div>
 
             <div className="px-3 mb-2">
-                <div className="h-px bg-gray-100" />
+                <div className="h-px bg-gray-100 dark:bg-gray-800" />
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-3 overflow-y-auto pb-2">
+            <nav className="flex-1 px-3 overflow-y-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
                 {NAV_ITEMS.filter(item => item.divider || !item.roles || item.roles.includes(user?.role ?? 'admin')).map((item, idx) => {
                     if (item.divider) {
                         return collapsed && !mobile
-                            ? <div key={item.label} className="my-2 h-px bg-gray-100 mx-1" />
+                            ? <div key={item.label} className="my-2 h-px bg-gray-100 dark:bg-gray-800 mx-1" />
                             : (
                                 <div key={item.label} className={`${idx === 0 ? 'pt-1' : 'pt-3'} pb-1 px-1`}>
-                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <span className="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
                                         {item.label}
                                     </span>
                                 </div>
@@ -182,11 +199,11 @@ export default function BackendLayout({ children }) {
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group mb-0.5
                                 ${active
                                     ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
-                                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                                 }
                                 ${collapsed && !mobile ? 'justify-center px-2' : ''}
                             `}>
-                            <span className={`flex-shrink-0 ${active ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                            <span className={`flex-shrink-0 ${active ? 'text-white' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`}>
                                 {item.icon}
                             </span>
                             {(!collapsed || mobile) && <span>{item.label}</span>}
@@ -196,12 +213,14 @@ export default function BackendLayout({ children }) {
             </nav>
 
             {/* Bottom user section */}
-            <div className="px-3 py-4 border-t border-gray-100 space-y-2">
+            <div className="px-3 py-4 border-t border-gray-100 dark:border-gray-800 space-y-1">
                 {/* Notif bell */}
                 <button onClick={handleEnableNotif}
                     title={notifGranted ? 'Notifikasi aktif' : 'Aktifkan notifikasi'}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                        ${notifGranted ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'}
+                        ${notifGranted
+                            ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}
                         ${collapsed && !mobile ? 'justify-center px-2' : ''}
                     `}>
                     {notifGranted ? (
@@ -218,22 +237,48 @@ export default function BackendLayout({ children }) {
                     )}
                 </button>
 
+                {/* Theme toggle — animated pill */}
+                <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                        ${theme === 'dark'
+                            ? 'text-amber-400 hover:bg-amber-950/40 hover:text-amber-300'
+                            : 'text-gray-500 hover:bg-amber-50 hover:text-amber-600'}
+                        ${collapsed && !mobile ? 'justify-center px-2' : ''}
+                    `}>
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                        {/* Sun */}
+                        <svg className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`}
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+                        </svg>
+                        {/* Moon */}
+                        <svg className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${theme === 'dark' ? 'opacity-0 -rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`}
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd"/>
+                        </svg>
+                    </div>
+                    {(!collapsed || mobile) && (
+                        <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                    )}
+                </button>
+
                 {/* User info */}
                 <div className={`flex items-center gap-3 px-3 py-2 ${collapsed && !mobile ? 'justify-center' : ''}`}>
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold flex-shrink-0">
                         {initials}
                     </div>
                     {(!collapsed || mobile) && (
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
-                            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{user?.email}</p>
                         </div>
                     )}
                 </div>
 
                 {/* Logout */}
                 <button onClick={handleLogout}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 transition-all
                         ${collapsed && !mobile ? 'justify-center px-2' : ''}
                     `}>
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -246,16 +291,16 @@ export default function BackendLayout({ children }) {
     );
 
     return (
-        <div className="flex h-screen bg-gray-50 overflow-hidden">
+        <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden transition-colors duration-200">
 
             {/* Desktop Sidebar */}
-            <aside className={`hidden lg:flex flex-col bg-white border-r border-gray-100 transition-all duration-300 flex-shrink-0
+            <aside className={`hidden lg:flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 flex-shrink-0 overflow-hidden
                 ${collapsed ? 'w-16' : 'w-56'}`}>
                 {/* Collapse toggle */}
                 <button onClick={() => setCollapsed(c => !c)}
-                    className="absolute left-0 mt-16 ml-[calc(var(--sidebar-w)-12px)] z-10 hidden lg:flex w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center shadow-sm hover:bg-gray-50 transition"
+                    className="absolute left-0 mt-16 ml-[calc(var(--sidebar-w)-12px)] z-10 hidden lg:flex w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full items-center justify-center shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                     style={{ '--sidebar-w': collapsed ? '64px' : '224px', marginLeft: collapsed ? '52px' : '212px' }}>
-                    <svg className={`w-3 h-3 text-gray-500 transition-transform ${collapsed ? 'rotate-180' : ''}`}
+                    <svg className={`w-3 h-3 text-gray-500 dark:text-gray-400 transition-transform ${collapsed ? 'rotate-180' : ''}`}
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -267,7 +312,7 @@ export default function BackendLayout({ children }) {
             {mobileOpen && (
                 <div className="fixed inset-0 z-40 lg:hidden">
                     <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-                    <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl z-50">
+                    <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-900 shadow-xl z-50">
                         <SidebarContent mobile />
                     </aside>
                 </div>
@@ -276,7 +321,7 @@ export default function BackendLayout({ children }) {
             {/* Main content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Mobile topbar */}
-                <header className="lg:hidden bg-white border-b border-gray-100 h-14 flex items-center gap-3 px-4 flex-shrink-0">
+                <header className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 h-14 flex items-center gap-3 px-4 flex-shrink-0">
                     <button onClick={() => setMobileOpen(true)}
                         className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition">
                         <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
