@@ -12,6 +12,11 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         manifest: true,
+        rollupOptions: {
+            output: {
+                manualChunks: undefined,
+            }
+        }
     },
     server: {
         port: 5173,

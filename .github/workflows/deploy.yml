@@ -127,10 +127,8 @@ jobs:
             exit 1
           fi
 
-          echo "Cleaning dist directory..."
-          chmod -R 777 dist/ 2>/dev/null || true
-          rm -rf dist/
-          mkdir -p dist
+          echo "Removing problematic .user.ini file if exists..."
+          find dist -name ".user.ini" -exec rm -f {} + 2>/dev/null || true
 
           echo "Building frontend..."
           npm run build
