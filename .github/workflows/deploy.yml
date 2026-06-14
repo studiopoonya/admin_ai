@@ -11,14 +11,25 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Test Network Connectivity
+      run: |
+        echo "Testing DNS resolution..."
+        nslookup ${{ secrets.VPS_HOST }}
+
+        echo "Testing TCP connection to port 22..."
+        timeout 10 bash -c "cat < /dev/null > /dev/tcp/${{ secrets.VPS_HOST }}/22" && echo "Port 22 is open" || echo "Port 22 is closed or unreachable"
+
     - name: Test SSH Connection
       uses: appleboy/ssh-action@master
+      env:
+        SSH_KNOWN_HOSTS: /dev/null
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: 22
-        strict_host_key_checking: false
+        timeout: 30s
+        command_timeout: 30s
         script: |
           echo "=========================================="
           echo "SSH Connection Test"
@@ -31,12 +42,15 @@ jobs:
 
     - name: Deploy to VPS
       uses: appleboy/ssh-action@master
+      env:
+        SSH_KNOWN_HOSTS: /dev/null
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: 22
-        strict_host_key_checking: false
+        timeout: 60s
+        command_timeout: 60s
         script: |
           set -e  # Exit on any error
 
