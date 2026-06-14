@@ -77,7 +77,15 @@ jobs:
           echo "=========================================="
           echo "Step 2: Backend setup"
           echo "=========================================="
-          cd $APP_PATH/backend
+
+          # Copy backend to deploy location
+          echo "Copying backend to deploy location..."
+          rm -rf $APP_PATH/../backend/public
+          cp -r $APP_PATH/backend $APP_PATH/../backend
+          echo "✓ Backend copied to $(dirname $APP_PATH)/backend"
+          echo ""
+
+          cd $(dirname $APP_PATH)/backend
 
           echo "Checking PHP..."
           php --version
@@ -127,11 +135,17 @@ jobs:
             exit 1
           fi
 
-          echo "Building frontend to root level..."
+          echo "Cleaning deploy frontend/dist..."
+          rm -rf $APP_PATH/../frontend/dist
+          mkdir -p $APP_PATH/../frontend/dist
+
+          echo "Building frontend to deploy location..."
           npm run build
 
-          echo "Build completed!"
-          ls -la $APP_PATH/../frontend/dist/ | head -5
+          echo ""
+          echo "✓ Frontend build completed!"
+          echo "Build output at: $(dirname $APP_PATH)/frontend/dist/"
+          ls -la $(dirname $APP_PATH)/frontend/dist/ | head -10
           if [ $? -eq 0 ]; then
             echo "✓ Frontend build successful"
           else
@@ -193,25 +207,29 @@ jobs:
           systemctl status mysql | grep Active
           echo ""
 
-          echo "Checking frontend build..."
-          if [ -f "$APP_PATH/frontend/dist/manifest.json" ]; then
+          echo "Checking deploy outputs..."
+          echo ""
+          echo "Frontend build at $(dirname $APP_PATH)/frontend/dist/:"
+          if [ -f "$(dirname $APP_PATH)/frontend/dist/manifest.json" ]; then
             echo "✓ Frontend manifest found"
+            ls -la $(dirname $APP_PATH)/frontend/dist/ | head -5
           else
             echo "✗ Frontend manifest NOT found"
           fi
           echo ""
 
-          echo "Checking backend Laravel..."
-          if [ -f "$APP_PATH/backend/artisan" ]; then
+          echo "Backend at $(dirname $APP_PATH)/backend/:"
+          if [ -f "$(dirname $APP_PATH)/backend/artisan" ]; then
             echo "✓ Laravel installation valid"
+            ls -la $(dirname $APP_PATH)/backend/public/ | head -3
           else
             echo "✗ Laravel installation invalid"
           fi
           echo ""
 
-          echo "Checking website accessibility..."
-          curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/
-          curl -s -o /dev/null -w "Build assets status: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/build/manifest.json
+          echo "Website accessibility tests..."
+          curl -s -o /dev/null -w "Homepage: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/
+          curl -s -o /dev/null -w "Build assets: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/build/manifest.json
           echo ""
 
           echo "=========================================="
