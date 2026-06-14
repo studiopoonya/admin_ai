@@ -2,13 +2,23 @@
     RewriteEngine On
     RewriteBase /
 
-    # Redirect /api requests to index.php for Laravel routing
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^api/(.*)$ /index.php [QSA,L]
+    # 1. Handle Authorization Header (Wajib agar Token Login dari React Terbaca oleh Laravel)
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Generic Laravel routing
+    # 2. Mencegah Pengalihan Trailing Slash Khusus untuk Rute API agar POST tidak berubah menjadi GET
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/api/
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # 3. Redirect /api requests to index.php for Laravel routing
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^ /index.php [QSA,L]
+    RewriteRule ^api/(.*)$ index.php [QSA,L]
+
+    # 4. Generic Laravel routing
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
