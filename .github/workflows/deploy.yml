@@ -130,8 +130,16 @@ jobs:
           echo "Building frontend (incremental, overwriting existing)..."
           npm run build
 
+          echo "Copying build to root level frontend/dist..."
+          mkdir -p ../../frontend/dist
+          cp -r dist/* ../../frontend/dist/
+
           echo "Build completed!"
+          echo "=== Build in admin_ai/frontend/dist ==="
           ls -la dist/ | head -5
+          echo ""
+          echo "=== Copied to /frontend/dist ==="
+          ls -la ../../frontend/dist/ | head -5
           if [ $? -eq 0 ]; then
             echo "✓ Frontend build successful"
           else
