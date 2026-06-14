@@ -7,6 +7,16 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Home route
+Route::get('/home', function () {
+    return Inertia::render('frontend/Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+})->middleware('auth')->name('home');
+
 Route::get('/', function () {
     return Inertia::render('frontend/Welcome', [
         'canLogin' => Route::has('login'),
@@ -30,3 +40,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Catch-all untuk React Router (HARUS di akhir!)
+Route::get('{any}', function () {
+    return Inertia::render('frontend/Welcome');
+})->where('any', '.*');

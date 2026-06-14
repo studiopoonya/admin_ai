@@ -15,7 +15,7 @@ export default function Login() {
         setError('');
         try {
             await login(form.email, form.password);
-            navigate('/');
+            navigate('/home');
         } catch (err) {
             setError(err.response?.data?.message || 'Email atau password salah.');
         } finally {
