@@ -11,6 +11,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Add SSH Host Key
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+        ssh-keyscan -H 145.79.10.176 >> ~/.ssh/known_hosts 2>/dev/null
+
     - name: Test Network Connectivity
       run: |
         echo "Testing DNS resolution..."
@@ -21,8 +27,6 @@ jobs:
 
     - name: Test SSH Connection
       uses: appleboy/ssh-action@master
-      env:
-        SSH_KNOWN_HOSTS: /dev/null
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
@@ -42,8 +46,6 @@ jobs:
 
     - name: Deploy to VPS
       uses: appleboy/ssh-action@master
-      env:
-        SSH_KNOWN_HOSTS: /dev/null
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
