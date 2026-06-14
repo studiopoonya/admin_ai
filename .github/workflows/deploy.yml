@@ -18,6 +18,7 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: 22
+        strict_host_key_checking: false
         script: |
           echo "=========================================="
           echo "SSH Connection Test"
@@ -35,7 +36,7 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: 22
-        stricted_host_key_checking: false
+        strict_host_key_checking: false
         script: |
           set -e  # Exit on any error
 

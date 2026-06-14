@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
-import PrivateRoute from '@/components/PrivateRoute';
+import PrivateRoute from '@/Components/PrivateRoute';
 import Login from '@/Pages/Login';
 import BookingForm from '@/Pages/BookingForm';
 import FormBookings from '@/Pages/backend/FormBookings';
