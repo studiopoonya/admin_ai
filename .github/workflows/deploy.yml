@@ -38,7 +38,7 @@ jobs:
         script: |
           set -e  # Exit on any error
 
-          APP_PATH="/www/wwwroot/dashboard.waktunyaphotobooth.com"
+          APP_PATH="/www/wwwroot/dashboard.waktunyaphotobooth.com/admin_ai"
 
           echo "=========================================="
           echo "DEPLOYMENT START"
