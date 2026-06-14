@@ -31,7 +31,21 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        // Only allow POST method
+        if (!$request->isMethod('POST')) {
+            return response()->json([
+                'message' => 'Method not allowed',
+                'error' => 'Use POST method for login',
+            ], 405);
+        }
+
         try {
+            // Validate required fields
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
+
             // Manual authentication for API
             if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
                 throw ValidationException::withMessages([
