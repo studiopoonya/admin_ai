@@ -80,12 +80,13 @@ jobs:
 
           # Copy backend to deploy location
           echo "Copying backend to deploy location..."
-          rm -rf $APP_PATH/../backend/public
-          cp -r $APP_PATH/backend $APP_PATH/../backend
-          echo "✓ Backend copied to $(dirname $APP_PATH)/backend"
+          DEPLOY_ROOT=$(dirname $APP_PATH)
+          rm -rf $DEPLOY_ROOT/backend
+          cp -r $APP_PATH/backend $DEPLOY_ROOT/backend
+          echo "✓ Backend copied to $DEPLOY_ROOT/backend"
           echo ""
 
-          cd $(dirname $APP_PATH)/backend
+          cd $DEPLOY_ROOT/backend
 
           echo "Checking PHP..."
           php --version
@@ -136,16 +137,17 @@ jobs:
           fi
 
           echo "Cleaning deploy frontend/dist..."
-          rm -rf $APP_PATH/../frontend/dist
-          mkdir -p $APP_PATH/../frontend/dist
+          DEPLOY_ROOT=$(dirname $APP_PATH)
+          rm -rf $DEPLOY_ROOT/frontend/dist
+          mkdir -p $DEPLOY_ROOT/frontend/dist
 
           echo "Building frontend to deploy location..."
           npm run build
 
           echo ""
           echo "✓ Frontend build completed!"
-          echo "Build output at: $(dirname $APP_PATH)/frontend/dist/"
-          ls -la $(dirname $APP_PATH)/frontend/dist/ | head -10
+          echo "Build output at: $DEPLOY_ROOT/frontend/dist/"
+          ls -la $DEPLOY_ROOT/frontend/dist/ | head -10
           if [ $? -eq 0 ]; then
             echo "✓ Frontend build successful"
           else
@@ -208,20 +210,21 @@ jobs:
           echo ""
 
           echo "Checking deploy outputs..."
+          DEPLOY_ROOT=$(dirname $APP_PATH)
           echo ""
-          echo "Frontend build at $(dirname $APP_PATH)/frontend/dist/:"
-          if [ -f "$(dirname $APP_PATH)/frontend/dist/manifest.json" ]; then
+          echo "Frontend build at $DEPLOY_ROOT/frontend/dist/:"
+          if [ -f "$DEPLOY_ROOT/frontend/dist/manifest.json" ]; then
             echo "✓ Frontend manifest found"
-            ls -la $(dirname $APP_PATH)/frontend/dist/ | head -5
+            ls -la $DEPLOY_ROOT/frontend/dist/ | head -5
           else
             echo "✗ Frontend manifest NOT found"
           fi
           echo ""
 
-          echo "Backend at $(dirname $APP_PATH)/backend/:"
-          if [ -f "$(dirname $APP_PATH)/backend/artisan" ]; then
+          echo "Backend at $DEPLOY_ROOT/backend/:"
+          if [ -f "$DEPLOY_ROOT/backend/artisan" ]; then
             echo "✓ Laravel installation valid"
-            ls -la $(dirname $APP_PATH)/backend/public/ | head -3
+            ls -la $DEPLOY_ROOT/backend/public/ | head -3
           else
             echo "✗ Laravel installation invalid"
           fi
