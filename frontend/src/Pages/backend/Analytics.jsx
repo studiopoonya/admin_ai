@@ -1,4 +1,4 @@
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import { useState, useEffect } from 'react';
 import api from '@/api/axios';
 

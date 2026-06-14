@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import ConfirmModal from '@/components/ConfirmModal';
-import { TableSkeleton } from '@/components/Skeleton';
-import EmptyState from '@/components/EmptyState';
+import ConfirmModal from '@/Components/ConfirmModal';
+import { TableSkeleton } from '@/Components/Skeleton';
+import EmptyState from '@/Components/EmptyState';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_OPTS = [

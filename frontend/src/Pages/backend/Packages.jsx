@@ -1,8 +1,8 @@
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import { useState, useEffect, useMemo } from 'react';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import ConfirmModal from '@/components/ConfirmModal';
+import ConfirmModal from '@/Components/ConfirmModal';
 
 const EMPTY = { kiosk_id: '', nama: '', harga: '', durasi_jam: '', fitur: '', aktif: true };
 

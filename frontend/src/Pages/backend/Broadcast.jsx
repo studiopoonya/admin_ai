@@ -1,8 +1,8 @@
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import { useState, useEffect } from 'react';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import ConfirmModal from '@/components/ConfirmModal';
+import ConfirmModal from '@/Components/ConfirmModal';
 
 const STATUS_CONFIG = {
     new:        { label: 'Baru',      color: 'bg-gray-100 text-gray-600' },

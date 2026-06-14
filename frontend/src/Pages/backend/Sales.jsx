@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
-import { TableSkeleton } from '@/components/Skeleton';
+import { TableSkeleton } from '@/Components/Skeleton';
 
 function formatRp(n) {
     if (!n && n !== 0) return 'Rp 0';

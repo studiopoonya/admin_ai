@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
 
 const SECTIONS = [

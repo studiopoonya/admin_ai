@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import ConfirmModal from '@/components/ConfirmModal';
+import ConfirmModal from '@/Components/ConfirmModal';
 
 const KATEGORI_LABELS = {
     wedding:   'Wedding',

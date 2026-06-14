@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import { Skeleton } from '@/components/Skeleton';
+import { Skeleton } from '@/Components/Skeleton';
 
 const STATUS_CFG = {
     pending:   { label: 'Pending',  cls: 'bg-amber-100 text-amber-700' },

@@ -1,8 +1,8 @@
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '@/api/axios';
-import { Skeleton } from '@/components/Skeleton';
+import { Skeleton } from '@/Components/Skeleton';
 
 function fmt(n) {
     if (n == null) return '-';

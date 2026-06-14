@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import ConfirmModal from '@/components/ConfirmModal';
-import EmptyState from '@/components/EmptyState';
+import ConfirmModal from '@/Components/ConfirmModal';
+import EmptyState from '@/Components/EmptyState';
 
 const STATUS_CFG = {
     pending:  { label: 'Pending',  color: 'bg-amber-100 text-amber-700',  dot: 'bg-amber-400' },

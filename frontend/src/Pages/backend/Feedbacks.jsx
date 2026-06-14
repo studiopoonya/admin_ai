@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import BackendLayout from '@/layouts/BackendLayout';
+import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
 import { useToast } from '@/context/ToastContext';
-import ConfirmModal from '@/components/ConfirmModal';
-import EmptyState from '@/components/EmptyState';
+import ConfirmModal from '@/Components/ConfirmModal';
+import EmptyState from '@/Components/EmptyState';
 
 const RATING_LABELS = {
     print: 'Print Foto',
