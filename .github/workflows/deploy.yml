@@ -128,7 +128,9 @@ jobs:
           fi
 
           echo "Cleaning dist directory..."
+          chmod -R 777 dist/ 2>/dev/null || true
           rm -rf dist/
+          mkdir -p dist
 
           echo "Building frontend..."
           npm run build
