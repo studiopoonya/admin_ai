@@ -142,17 +142,12 @@ jobs:
             exit 1
           fi
 
-          echo "Checking build output..."
-          ls -la $APP_PATH/frontend/dist/
-          echo ""
-
-          echo "Setting up symlink for backend to access frontend build..."
-          rm -rf $APP_PATH/backend/public/build
-          ln -s ../../frontend/dist $APP_PATH/backend/public/build
-          if [ $? -eq 0 ]; then
-            echo "✓ Symlink created successfully"
+          echo "Checking frontend build output..."
+          if [ -d "$APP_PATH/frontend/dist" ]; then
+            echo "✓ Frontend build exists"
+            ls -la $APP_PATH/frontend/dist/ | head -5
           else
-            echo "✗ Symlink creation failed"
+            echo "✗ Frontend build NOT found"
             exit 1
           fi
           echo ""
@@ -199,9 +194,27 @@ jobs:
           systemctl status nginx | grep Active
           systemctl status lsws | grep Active
           systemctl status mysql | grep Active
+          echo ""
+
+          echo "Checking frontend build..."
+          if [ -f "$APP_PATH/frontend/dist/manifest.json" ]; then
+            echo "✓ Frontend manifest found"
+          else
+            echo "✗ Frontend manifest NOT found"
+          fi
+          echo ""
+
+          echo "Checking backend Laravel..."
+          if [ -f "$APP_PATH/backend/artisan" ]; then
+            echo "✓ Laravel installation valid"
+          else
+            echo "✗ Laravel installation invalid"
+          fi
+          echo ""
 
           echo "Checking website accessibility..."
           curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/
+          curl -s -o /dev/null -w "Build assets status: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/build/manifest.json
           echo ""
 
           echo "=========================================="
