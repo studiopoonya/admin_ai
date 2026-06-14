@@ -127,11 +127,11 @@ jobs:
             exit 1
           fi
 
-          echo "Removing problematic .user.ini file if exists..."
-          find dist -name ".user.ini" -exec rm -f {} + 2>/dev/null || true
-
-          echo "Building frontend..."
+          echo "Building frontend (incremental, overwriting existing)..."
           npm run build
+
+          echo "Build completed!"
+          ls -la dist/ | head -5
           if [ $? -eq 0 ]; then
             echo "✓ Frontend build successful"
           else
