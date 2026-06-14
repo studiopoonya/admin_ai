@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,18 +27,35 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle an incoming authentication request (API).
      */
-    public function store(LoginRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $request->authenticate();
+        try {
+            // Manual authentication for API
+            if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+                throw ValidationException::withMessages([
+                    'email' => __('auth.failed'),
+                ]);
+            }
 
-        $request->session()->regenerate();
+            $request->session()->regenerate();
 
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => Auth::user(),
-        ], 200);
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => Auth::user(),
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Login failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
