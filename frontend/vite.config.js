@@ -12,7 +12,14 @@ export default defineConfig({
     build: {
         outDir: '../../frontend/dist',
         emptyOutDir: true,
-        manifest: true,
+        manifest: 'manifest.json',
+        rollupOptions: {
+            output: {
+                entryFileNames: 'assets/[name]-[hash].js',
+                chunkFileNames: 'assets/[name]-[hash].js',
+                assetFileNames: 'assets/[name]-[hash][extname]'
+            }
+        }
     },
     server: {
         port: 5173,
