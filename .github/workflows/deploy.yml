@@ -102,6 +102,13 @@ jobs:
           npm install --legacy-peer-deps
           echo "✓ NPM install OK"
 
+          # Hapus .user.ini immutable di dist (aaPanel auto-creates ini)
+          if [ -f "$REPO/frontend/dist/.user.ini" ]; then
+            chattr -i $REPO/frontend/dist/.user.ini
+            rm -f $REPO/frontend/dist/.user.ini
+          fi
+          rm -rf $REPO/frontend/dist
+
           # Build langsung ke folder static dashboard
           npm run build
           echo "✓ Frontend build OK"
