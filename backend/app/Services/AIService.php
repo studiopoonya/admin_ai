@@ -12,7 +12,7 @@ class AIService
     private Client $client;
     private string $apiKey;
 
-    private const MODEL_SONNET = 'claude-sonnet-4-5';
+    private const MODEL_SONNET = 'claude-sonnet-4-6';
     private const MODEL_HAIKU  = 'claude-haiku-4-5-20251001';
 
     private const BOOKING_KEYWORDS = [
@@ -269,8 +269,9 @@ PROMPT;
         $bankAccountNumber = ($kiosk?->bank_account_number) ?: Setting::get('bank_account_number');
         $bankAccountHolder = ($kiosk?->bank_account_holder) ?: Setting::get('bank_account_holder');
 
-        $today   = now()->locale('id')->isoFormat('dddd, D MMMM Y');
-        $timeNow = now()->format('H:i') . ' WIB';
+        $today      = now()->locale('id')->isoFormat('dddd, D MMMM Y');
+        $timeNow    = now()->format('H:i') . ' WIB';
+        $bookingUrl = rtrim(Setting::get('frontend_url') ?: env('FRONTEND_URL') ?: config('app.url'), '/') . '/booking';
 
         $paketList = '';
         foreach ($packageData as $p) {
@@ -442,7 +443,7 @@ JANGAN sebut atau kirim pricelist lagi setelah "[Pricelist dikirim]" ada di hist
 LANGKAH 4 — CLOSING & DP
 Setelah venue oke → arahkan booking:
 "Silakan mengisi form penyewaan di link berikut 😊
-http://localhost:5173/booking"
+{$bookingUrl}"
 
 DP: dorong secepatnya untuk amankan slot.
 "Biar slot tanggal [X] aman kak, bisa DP dulu ya — sering ada yang rebutan tanggal sama 😊"

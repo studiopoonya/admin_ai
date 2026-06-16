@@ -11,14 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Test Network Connectivity
-      run: |
-        echo "Testing DNS resolution..."
-        nslookup ${{ secrets.VPS_HOST }}
-
-        echo "Testing TCP connection to port 22..."
-        timeout 10 bash -c "cat < /dev/null > /dev/tcp/${{ secrets.VPS_HOST }}/22" && echo "Port 22 is open" || echo "Port 22 is closed or unreachable"
-
     - name: Test SSH Connection
       uses: appleboy/ssh-action@master
       with:
@@ -29,13 +21,8 @@ jobs:
         timeout: 30s
         command_timeout: 30s
         script: |
-          echo "=========================================="
-          echo "SSH Connection Test"
-          echo "=========================================="
           echo "User: $(whoami)"
-          echo "Working Directory: $(pwd)"
-          echo "Checking app directory..."
-          ls -la /www/wwwroot/dashboard.waktunyaphotobooth.com
+          ls -la /www/wwwroot/dashboard.waktunyaphotobooth.com/admin_ai
           echo "SSH Test PASSED ✓"
 
     - name: Deploy to VPS
@@ -45,198 +32,99 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: 22
-        timeout: 60s
-        command_timeout: 60s
+        timeout: 600s
+        command_timeout: 600s
         script: |
-          set -e  # Exit on any error
+          set -e
 
-          APP_PATH="/www/wwwroot/dashboard.waktunyaphotobooth.com/admin_ai"
+          # Git repo (source of truth)
+          REPO="/www/wwwroot/dashboard.waktunyaphotobooth.com/admin_ai"
+
+          # Deploy targets (sesuai subdomain aaPanel)
+          BACKEND_DEPLOY="/www/wwwroot/api-dashboard.waktunyaphotobooth.com"
+          FRONTEND_DEPLOY="/www/wwwroot/dashboard.waktunyaphotobooth.com"
 
           echo "=========================================="
-          echo "DEPLOYMENT START"
+          echo "DEPLOYMENT START - $(date)"
           echo "=========================================="
-          echo "Time: $(date)"
-          echo "App Path: $APP_PATH"
-          echo ""
 
           # Step 1: Pull latest code
-          echo "=========================================="
-          echo "Step 1: Pulling latest code"
-          echo "=========================================="
-          cd $APP_PATH
+          echo "--- Step 1: Git pull ---"
+          cd $REPO
           git pull origin master
-          if [ $? -eq 0 ]; then
-            echo "✓ Git pull successful"
+          echo "✓ Git pull successful"
+
+          # Step 2: Deploy Backend → api_dashboard.waktunyaphotobooth.com
+          echo "--- Step 2: Backend deploy ---"
+
+          # Backup .env dulu sebelum rm -rf
+          if [ -f "$BACKEND_DEPLOY/backend/.env" ]; then
+            cp $BACKEND_DEPLOY/backend/.env /tmp/wabot_backend.env
+            echo "✓ .env backed up"
           else
-            echo "✗ Git pull failed"
-            exit 1
-          fi
-          echo ""
-
-          # Step 2: Backend setup
-          echo "=========================================="
-          echo "Step 2: Backend setup"
-          echo "=========================================="
-
-          # Copy backend to deploy location
-          echo "Copying backend to deploy location..."
-          DEPLOY_ROOT=$(dirname $APP_PATH)
-          rm -rf $DEPLOY_ROOT/backend
-          cp -r $APP_PATH/backend $DEPLOY_ROOT/backend
-          echo "✓ Backend copied to $DEPLOY_ROOT/backend"
-          echo ""
-
-          cd $DEPLOY_ROOT/backend
-
-          echo "Checking PHP..."
-          php --version
-
-          echo "Installing composer dependencies..."
-          composer install --no-interaction --prefer-dist
-          if [ $? -eq 0 ]; then
-            echo "✓ Composer install successful"
-          else
-            echo "✗ Composer install failed"
+            echo "✗ ERROR: .env tidak ditemukan di $BACKEND_DEPLOY/backend/.env"
+            echo "  Buat .env manual dulu di server sebelum deploy!"
             exit 1
           fi
 
-          echo "Running migrations..."
+          rm -rf $BACKEND_DEPLOY/backend
+          cp -r $REPO/backend $BACKEND_DEPLOY/backend
+          echo "✓ Backend copied"
+
+          # Restore .env
+          cp /tmp/wabot_backend.env $BACKEND_DEPLOY/backend/.env
+          echo "✓ .env restored"
+
+          cd $BACKEND_DEPLOY/backend
+
+          composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+          echo "✓ Composer install OK"
+
           php artisan migrate --force
-          if [ $? -eq 0 ]; then
-            echo "✓ Migrations successful"
-          else
-            echo "✗ Migrations failed"
-            exit 1
-          fi
+          echo "✓ Migrations OK"
 
-          echo "Clearing caches..."
-          php artisan cache:clear
-          php artisan route:clear
-          php artisan config:clear
-          php artisan view:clear
-          echo "✓ Caches cleared"
-          echo ""
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          echo "✓ Cache built"
 
-          # Step 3: Frontend build
-          echo "=========================================="
-          echo "Step 3: Frontend build"
-          echo "=========================================="
-          cd $APP_PATH/frontend
+          chmod -R 775 storage bootstrap/cache
+          chown -R www:www $BACKEND_DEPLOY/backend
+          echo "✓ Permissions set"
 
-          echo "Checking Node..."
+          # Step 3: Build Frontend → dashboard.waktunyaphotobooth.com
+          echo "--- Step 3: Frontend build ---"
+          cd $REPO/frontend
+
           node --version
           npm --version
 
-          echo "Installing npm dependencies..."
           npm install --legacy-peer-deps
-          if [ $? -eq 0 ]; then
-            echo "✓ NPM install successful"
-          else
-            echo "✗ NPM install failed"
-            exit 1
-          fi
+          echo "✓ NPM install OK"
 
-          echo "Cleaning deploy frontend/dist..."
-          DEPLOY_ROOT=$(dirname $APP_PATH)
-          rm -rf $DEPLOY_ROOT/frontend/dist
-          mkdir -p $DEPLOY_ROOT/frontend/dist
-
-          echo "Building frontend to deploy location..."
+          # Build langsung ke folder static dashboard
           npm run build
+          echo "✓ Frontend build OK"
 
-          echo ""
-          echo "✓ Frontend build completed!"
-          echo "Build output at: $DEPLOY_ROOT/frontend/dist/"
-          ls -la $DEPLOY_ROOT/frontend/dist/ | head -10
-          if [ $? -eq 0 ]; then
-            echo "✓ Frontend build successful"
-          else
-            echo "✗ Frontend build failed"
-            exit 1
-          fi
+          # Copy dist ke root dashboard (site Static aaPanel)
+          rm -rf $FRONTEND_DEPLOY/*.html $FRONTEND_DEPLOY/assets
+          cp -r $REPO/frontend/dist/* $FRONTEND_DEPLOY/
+          echo "✓ Frontend deployed ke $FRONTEND_DEPLOY"
 
-          echo "Checking frontend build output..."
-          if [ -d "$APP_PATH/frontend/dist" ]; then
-            echo "✓ Frontend build exists"
-            ls -la $APP_PATH/frontend/dist/ | head -5
-          else
-            echo "✗ Frontend build NOT found"
-            exit 1
-          fi
-          echo ""
+          # Step 4: Reload Nginx
+          echo "--- Step 4: Reload Nginx ---"
+          nginx -t && systemctl reload nginx
+          echo "✓ Nginx reloaded"
 
-          # Step 4: Service restart
-          echo "=========================================="
-          echo "Step 4: Restarting services"
-          echo "=========================================="
+          # Step 5: Restart queue worker
+          echo "--- Step 5: Queue worker ---"
+          supervisorctl restart wabot-queue || echo "⚠ wabot-queue belum ada di Supervisor (skip)"
 
-          echo "Restarting Nginx..."
-          systemctl restart nginx
-          if [ $? -eq 0 ]; then
-            echo "✓ Nginx restarted"
-          else
-            echo "✗ Nginx restart failed"
-            exit 1
-          fi
-
-          echo "Restarting OpenLiteSpeed..."
-          systemctl restart lsws
-          if [ $? -eq 0 ]; then
-            echo "✓ OpenLiteSpeed restarted"
-          else
-            echo "✗ OpenLiteSpeed restart failed"
-            exit 1
-          fi
-
-          echo "Restarting MySQL..."
-          systemctl restart mysql
-          if [ $? -eq 0 ]; then
-            echo "✓ MySQL restarted"
-          else
-            echo "✗ MySQL restart failed"
-            exit 1
-          fi
-          echo ""
-
-          # Step 5: Verification
-          echo "=========================================="
-          echo "Step 5: Verification"
-          echo "=========================================="
-
-          echo "Checking services status..."
-          systemctl status nginx | grep Active
-          systemctl status lsws | grep Active
-          systemctl status mysql | grep Active
-          echo ""
-
-          echo "Checking deploy outputs..."
-          DEPLOY_ROOT=$(dirname $APP_PATH)
-          echo ""
-          echo "Frontend build at $DEPLOY_ROOT/frontend/dist/:"
-          if [ -f "$DEPLOY_ROOT/frontend/dist/manifest.json" ]; then
-            echo "✓ Frontend manifest found"
-            ls -la $DEPLOY_ROOT/frontend/dist/ | head -5
-          else
-            echo "✗ Frontend manifest NOT found"
-          fi
-          echo ""
-
-          echo "Backend at $DEPLOY_ROOT/backend/:"
-          if [ -f "$DEPLOY_ROOT/backend/artisan" ]; then
-            echo "✓ Laravel installation valid"
-            ls -la $DEPLOY_ROOT/backend/public/ | head -3
-          else
-            echo "✗ Laravel installation invalid"
-          fi
-          echo ""
-
-          echo "Website accessibility tests..."
-          curl -s -o /dev/null -w "Homepage: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/
-          curl -s -o /dev/null -w "Build assets: %{http_code}\n" https://dashboard.waktunyaphotobooth.com/build/manifest.json
-          echo ""
+          # Step 6: Verify
+          echo "--- Step 6: Verification ---"
+          [ -f "$FRONTEND_DEPLOY/index.html" ] && echo "✓ Frontend index.html OK" || { echo "✗ Frontend index.html tidak ada"; exit 1; }
+          [ -f "$BACKEND_DEPLOY/backend/artisan" ] && echo "✓ Laravel backend OK" || { echo "✗ Laravel artisan tidak ada"; exit 1; }
 
           echo "=========================================="
-          echo "DEPLOYMENT COMPLETED SUCCESSFULLY ✓"
+          echo "DEPLOYMENT COMPLETED ✓ - $(date)"
           echo "=========================================="
-          echo "Time: $(date)"
-          echo ""

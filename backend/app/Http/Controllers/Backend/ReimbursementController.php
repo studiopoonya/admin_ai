@@ -26,6 +26,7 @@ class ReimbursementController extends Controller
             'kebutuhan_lainnya'=> 'nullable|string|max:500',
             'jumlah'           => 'required|integer|min:1',
             'tujuan'           => 'required|string|max:1000',
+            'bukti'            => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         // Handle optional file upload

@@ -42,7 +42,7 @@ export default function App() {
                     <Route path="/booking" element={<BookingForm />} />
                     <Route path="/staff"   element={<StaffCheckin />} />
                     <Route path="/feedback" element={<FeedbackForm />} />
-                    <Route path="/"          element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                    <Route path="/home"      element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                     <Route path="/settings"  element={<PrivateRoute><Settings /></PrivateRoute>} />
                     <Route path="/packages"  element={<PrivateRoute><Packages /></PrivateRoute>} />
                     <Route path="/broadcast" element={<PrivateRoute><Broadcast /></PrivateRoute>} />
@@ -65,7 +65,7 @@ export default function App() {
                     <Route path="/op-settings"   element={<PrivateRoute><OperasionalSettings /></PrivateRoute>} />
                     <Route path="/customers/:id" element={<PrivateRoute><CustomerDetail /></PrivateRoute>} />
                     <Route path="/database"     element={<PrivateRoute><Database /></PrivateRoute>} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
+                    <Route path="*" element={<Navigate to="/home" replace />} />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

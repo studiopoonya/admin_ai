@@ -25,7 +25,7 @@ class ProcessWhatsAppMessage
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries   = 1;  // No retry — avoid sending duplicate messages
-    public int $timeout = 90;
+    public int $timeout = 150; // AI: up to 3×45s retries + image download headroom
 
     private const HANDOFF_KEYWORDS = [
         'minta admin', 'ke admin', 'admin dong', 'admin aja', 'mau admin',

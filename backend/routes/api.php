@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\BookingFormController;
 use App\Http\Controllers\Backend\AnalyticsController;
+use App\Http\Controllers\Backend\AuthController;
 use App\Http\Controllers\Backend\KioskController;
 use App\Http\Controllers\Backend\LogisticController;
 use App\Http\Controllers\Backend\LogisticStaffController;
 use App\Http\Controllers\Backend\SalesController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\BookingController;
 use App\Http\Controllers\Backend\BroadcastController;
@@ -54,12 +54,12 @@ Route::get('/public-form/{token}',  [PublicFormController::class, 'show']);
 Route::post('/public-form/{token}', [PublicFormController::class, 'submit']);
 
 // Auth (SPA API)
-Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/login', [AuthController::class, 'login']);
 
 // Protected
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
-    Route::get('/user',    fn() => response()->json(auth()->user()));
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user',    fn() => response()->json(auth()->user()?->only(['name', 'email', 'role'])));
 
     // User management (admin only — enforced inside controller)
     Route::get('/users',           [UserController::class, 'index']);

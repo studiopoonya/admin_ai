@@ -12,7 +12,10 @@ export function AuthProvider({ children }) {
         if (token) {
             api.get('/user')
                 .then((res) => setUser(res.data))
-                .catch(() => localStorage.removeItem('token'))
+                .catch((err) => {
+                    // Only remove token on 401 — keep it on transient server errors
+                    if (err.response?.status === 401) localStorage.removeItem('token');
+                })
                 .finally(() => setLoading(false));
         } else {
             setLoading(false);

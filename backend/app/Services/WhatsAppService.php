@@ -36,15 +36,20 @@ class WhatsAppService
 
     public function sendImageFile(string $to, string $filePath, string $caption = ''): void
     {
-        $response = $this->client->post('/send', [
-            'headers'   => ['Authorization' => $this->token],
-            'multipart' => [
-                ['name' => 'target',  'contents' => $to],
-                ['name' => 'message', 'contents' => $caption ?: ' '],
-                ['name' => 'delay',   'contents' => '2'],
-                ['name' => 'file',    'contents' => fopen($filePath, 'r'), 'filename' => basename($filePath)],
-            ],
-        ]);
+        $fh = fopen($filePath, 'r');
+        try {
+            $response = $this->client->post('/send', [
+                'headers'   => ['Authorization' => $this->token],
+                'multipart' => [
+                    ['name' => 'target',  'contents' => $to],
+                    ['name' => 'message', 'contents' => $caption ?: ' '],
+                    ['name' => 'delay',   'contents' => '2'],
+                    ['name' => 'file',    'contents' => $fh, 'filename' => basename($filePath)],
+                ],
+            ]);
+        } finally {
+            if (is_resource($fh)) fclose($fh);
+        }
 
         $body = json_decode($response->getBody()->getContents(), true);
         logger()->info('Fonnte sendImageFile', [
