@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import logo from '@/assets/Logo-Studio-Poonya.png';
 
 export default function Login() {
     const { login } = useAuth();
@@ -28,7 +29,7 @@ export default function Login() {
             {/* Left panel */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 flex-col justify-between p-12">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-lg">📸</div>
+                    <img src={logo} alt="Studio Poonya" className="w-9 h-9 object-contain rounded-xl" />
                     <span className="text-white font-bold text-lg tracking-tight">Poonya Bot</span>
                 </div>
                 <div>
@@ -60,7 +61,7 @@ export default function Login() {
             <div className="flex-1 flex items-center justify-center bg-gray-50 px-6 py-12">
                 <div className="w-full max-w-md">
                     <div className="lg:hidden flex items-center gap-2 mb-10">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-base">📸</div>
+                        <img src={logo} alt="Studio Poonya" className="w-8 h-8 object-contain rounded-lg" />
                         <span className="font-bold text-gray-800">Poonya Bot</span>
                     </div>
 

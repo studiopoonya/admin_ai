@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logo from '@/assets/Logo-Studio-Poonya.png';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useState, useEffect } from 'react';
@@ -164,7 +165,7 @@ export default function BackendLayout({ children }) {
         <div className="flex flex-col h-full">
             {/* Brand */}
             <div className={`flex items-center gap-3 px-4 py-5 ${collapsed && !mobile ? 'justify-center px-0' : ''}`}>
-                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-lg flex-shrink-0">📸</div>
+                <img src={logo} alt="Studio Poonya" className="w-9 h-9 object-contain rounded-xl flex-shrink-0" />
                 {(!collapsed || mobile) && (
                     <div>
                         <p className="font-bold text-gray-900 dark:text-white text-sm leading-tight">Poonya Bot</p>
@@ -329,7 +330,7 @@ export default function BackendLayout({ children }) {
                         </svg>
                     </button>
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-sm flex-shrink-0">📸</div>
+                        <img src={logo} alt="Studio Poonya" className="w-7 h-7 object-contain rounded-lg flex-shrink-0" />
                         <span className="font-bold text-gray-900 text-sm truncate">
                             {NAV_ITEMS.find(n => !n.divider && n.to === location.pathname)?.label ?? 'Poonya Bot'}
                         </span>
