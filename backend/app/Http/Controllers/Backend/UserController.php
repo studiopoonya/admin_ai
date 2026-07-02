@@ -35,12 +35,22 @@ class UserController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        if ($err = $this->adminOnly()) return $err;
+        $caller  = auth()->user();
+        $isAdmin = $caller->role === 'admin';
+
+        // admin: full access; staff_logistic: can only create staff_operasional
+        if (! $isAdmin && $caller->role !== 'staff_logistic') {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+
+        $allowedRoles = $isAdmin
+            ? 'in:admin,staff_logistic,staff_design,staff_operasional'
+            : 'in:staff_operasional';
 
         $data = $request->validate([
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
-            'role'     => 'required|in:admin,staff_logistic,staff_design,staff_operasional',
+            'role'     => "required|{$allowedRoles}",
             'password' => 'required|string|min:6',
         ]);
 
