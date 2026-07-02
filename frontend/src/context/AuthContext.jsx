@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
         if (!res.data.token) throw new Error('Login gagal: token tidak diterima.');
         localStorage.setItem('token', res.data.token);
         setUser(res.data.user);
+        return res.data.user;
     };
 
     const logout = async () => {

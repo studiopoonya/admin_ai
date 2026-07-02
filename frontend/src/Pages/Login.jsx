@@ -15,8 +15,9 @@ export default function Login() {
         setLoading(true);
         setError('');
         try {
-            await login(form.email, form.password);
-            navigate('/home');
+            const loggedUser = await login(form.email, form.password);
+            const dest = loggedUser?.role === 'staff_logistic' ? '/logistics' : '/home';
+            navigate(dest);
         } catch (err) {
             setError(err.response?.data?.message || 'Email atau password salah.');
         } finally {
