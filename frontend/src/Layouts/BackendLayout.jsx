@@ -161,7 +161,21 @@ export default function BackendLayout({ children }) {
         ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
         : 'A';
 
-    const SidebarContent = ({ mobile = false }) => (
+    const SidebarContent = ({ mobile = false }) => {
+        const role = user?.role ?? 'admin';
+        const visibleNav = NAV_ITEMS.reduce((acc, item, i, arr) => {
+            if (item.divider) {
+                const rest = arr.slice(i + 1);
+                const nextDiv = rest.findIndex(x => x.divider);
+                const section = nextDiv === -1 ? rest : rest.slice(0, nextDiv);
+                if (section.some(x => !x.roles || x.roles.includes(role))) acc.push(item);
+            } else if (!item.roles || item.roles.includes(role)) {
+                acc.push(item);
+            }
+            return acc;
+        }, []);
+
+        return (
         <div className="flex flex-col h-full">
             {/* Brand */}
             <div className={`flex items-center gap-3 px-4 py-5 ${collapsed && !mobile ? 'justify-center px-0' : ''}`}>
@@ -180,7 +194,7 @@ export default function BackendLayout({ children }) {
 
             {/* Nav */}
             <nav className="flex-1 px-3 overflow-y-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
-                {NAV_ITEMS.filter(item => item.divider || !item.roles || item.roles.includes(user?.role ?? 'admin')).map((item, idx) => {
+                {visibleNav.map((item, idx) => {
                     if (item.divider) {
                         return collapsed && !mobile
                             ? <div key={item.label} className="my-2 h-px bg-gray-100 dark:bg-gray-800 mx-1" />
@@ -306,7 +320,8 @@ export default function BackendLayout({ children }) {
                 </button>
             </div>
         </div>
-    );
+        );
+    };
 
     return (
         <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden transition-colors duration-200">
