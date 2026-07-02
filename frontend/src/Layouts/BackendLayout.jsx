@@ -278,23 +278,6 @@ export default function BackendLayout({ children }) {
                     )}
                 </button>
 
-                {/* Quick Logistik shortcut — staff_logistic only */}
-                {user?.role === 'staff_logistic' && (
-                    <Link to="/logistics"
-                        onClick={() => mobile && setMobileOpen(false)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                            ${location.pathname === '/logistics'
-                                ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200'
-                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}
-                            ${collapsed && !mobile ? 'justify-center px-2' : ''}
-                        `}>
-                        <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        {(!collapsed || mobile) && <span>Logistik</span>}
-                    </Link>
-                )}
-
                 {/* User info */}
                 <div className={`flex items-center gap-3 px-3 py-2 ${collapsed && !mobile ? 'justify-center' : ''}`}>
                     <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold flex-shrink-0">
@@ -304,6 +287,11 @@ export default function BackendLayout({ children }) {
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
                             <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{user?.email}</p>
+                            {user?.role === 'staff_logistic' && (
+                                <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300">
+                                    Staff Logistik
+                                </span>
+                            )}
                         </div>
                     )}
                 </div>
