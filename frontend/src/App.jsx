@@ -43,9 +43,9 @@ export default function App() {
                     <Route path="/staff"   element={<StaffCheckin />} />
                     <Route path="/feedback" element={<FeedbackForm />} />
                     <Route path="/home"      element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                    <Route path="/settings"  element={<PrivateRoute><Settings /></PrivateRoute>} />
+                    <Route path="/settings"  element={<PrivateRoute roles={['admin']}><Settings /></PrivateRoute>} />
                     <Route path="/packages"  element={<PrivateRoute><Packages /></PrivateRoute>} />
-                    <Route path="/broadcast" element={<PrivateRoute><Broadcast /></PrivateRoute>} />
+                    <Route path="/broadcast" element={<PrivateRoute roles={['admin']}><Broadcast /></PrivateRoute>} />
                     <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
                     <Route path="/test-ai"   element={<PrivateRoute><TestAI /></PrivateRoute>} />
                     <Route path="/bookings"  element={<PrivateRoute><Bookings /></PrivateRoute>} />
@@ -58,7 +58,7 @@ export default function App() {
                     <Route path="/logistics"       element={<PrivateRoute><Logistics /></PrivateRoute>} />
                     <Route path="/logistic-staff"  element={<PrivateRoute><LogisticStaff /></PrivateRoute>} />
                     <Route path="/sales"           element={<PrivateRoute><Sales /></PrivateRoute>} />
-                    <Route path="/users"     element={<PrivateRoute><Users /></PrivateRoute>} />
+                    <Route path="/users"     element={<PrivateRoute roles={['admin']}><Users /></PrivateRoute>} />
                     <Route path="/feedbacks" element={<PrivateRoute><Feedbacks /></PrivateRoute>} />
                     <Route path="/reimbursement"  element={<ReimbursementForm />} />
                     <Route path="/reimbursements" element={<PrivateRoute><Reimbursements /></PrivateRoute>} />

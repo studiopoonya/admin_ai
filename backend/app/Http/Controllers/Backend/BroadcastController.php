@@ -11,8 +11,18 @@ use Illuminate\Http\Request;
 
 class BroadcastController extends Controller
 {
+    private function adminOnly(): ?JsonResponse
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+        return null;
+    }
+
     public function send(Request $request): JsonResponse
     {
+        if ($err = $this->adminOnly()) return $err;
+
         $request->validate([
             'message'       => 'required|string|max:4096',
             'filter_status' => 'nullable|array',
@@ -63,6 +73,8 @@ class BroadcastController extends Controller
 
     public function preview(Request $request): JsonResponse
     {
+        if ($err = $this->adminOnly()) return $err;
+
         $request->validate([
             'filter_status' => 'nullable|array',
             'filter_status.*' => 'in:new,interested,followup,booked,done',

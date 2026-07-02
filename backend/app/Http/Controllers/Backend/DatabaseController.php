@@ -122,7 +122,7 @@ class DatabaseController extends Controller
             if (file_exists($old)) @unlink($old);
         }
 
-        $ext      = $request->file('file')->getClientOriginalExtension();
+        $ext      = $request->file('file')->extension();
         $filename = 'logo-' . $userDatabase->id . '-' . uniqid() . '.' . $ext;
         $request->file('file')->move($dir, $filename);
 

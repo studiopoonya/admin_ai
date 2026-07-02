@@ -124,7 +124,7 @@ export default function Settings() {
                 bank_account_number:  r.data.bank_account_number   || '',
                 bank_account_holder:  r.data.bank_account_holder   || '',
             });
-        });
+        }).catch(() => {});
     }, []);
 
     const handleChange = (key, value) => setData(prev => ({ ...prev, [key]: value }));

@@ -44,12 +44,13 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        $user = User::create([
+        $user = new User([
             'name'     => $data['name'],
             'email'    => $data['email'],
-            'role'     => $data['role'],
             'password' => Hash::make($data['password']),
         ]);
+        $user->role = $data['role'];
+        $user->save();
 
         return response()->json([
             'id'         => $user->id,
@@ -71,17 +72,15 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6',
         ]);
 
-        $update = [
+        $user->fill([
             'name'  => $data['name'],
             'email' => $data['email'],
-            'role'  => $data['role'],
-        ];
-
+        ]);
+        $user->role = $data['role'];
         if (! empty($data['password'])) {
-            $update['password'] = Hash::make($data['password']);
+            $user->password = Hash::make($data['password']);
         }
-
-        $user->update($update);
+        $user->save();
 
         return response()->json([
             'id'         => $user->id,

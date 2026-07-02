@@ -106,7 +106,7 @@ class BookingController extends Controller
             mkdir($dir, 0755, true);
         }
 
-        $filename = 'frame-' . $booking->id . '-' . time() . '.' . $request->file('image')->getClientOriginalExtension();
+        $filename = 'frame-' . $booking->id . '-' . time() . '.' . $request->file('image')->extension();
         $request->file('image')->move($dir, $filename);
         $imageUrl = url("frame-designs/{$filename}");
 

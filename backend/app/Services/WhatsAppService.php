@@ -13,7 +13,7 @@ class WhatsAppService
 
     public function __construct()
     {
-        $this->token  = Setting::get('fonnte_token') ?: config('services.fonnte.token', '');
+        $this->token  = Setting::get('wa_access_token') ?: config('services.fonnte.token', '');
         $this->client = new Client(['base_uri' => 'https://api.fonnte.com', 'timeout' => 15]);
     }
 
@@ -82,10 +82,18 @@ class WhatsAppService
 
     private function send(array $data): void
     {
-        $this->client->post('/send', [
+        $response = $this->client->post('/send', [
             'headers'     => ['Authorization' => $this->token],
             'form_params' => $data,
         ]);
+
+        $body = json_decode($response->getBody()->getContents(), true);
+        if (isset($body['status']) && $body['status'] === false) {
+            logger()->warning('Fonnte send failed', [
+                'reason' => $body['reason'] ?? 'unknown',
+                'target' => $data['target'] ?? null,
+            ]);
+        }
     }
 
     // Simulate realistic typing speed: ~1 sec per 3 words, min 2s, max 7s

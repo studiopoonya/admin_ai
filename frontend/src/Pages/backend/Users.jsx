@@ -141,6 +141,7 @@ export default function Users() {
     useEffect(() => {
         api.get('/users')
             .then(r => setUsers(r.data))
+            .catch(() => toast.error('Gagal memuat daftar user.'))
             .finally(() => setLoading(false));
     }, []);
 
@@ -230,7 +231,7 @@ export default function Users() {
                                         <td className="px-5 py-3.5">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold flex-shrink-0">
-                                                    {u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+                                                    {u.name ? u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'}
                                                 </div>
                                                 <span className="font-medium text-gray-900">{u.name}</span>
                                             </div>

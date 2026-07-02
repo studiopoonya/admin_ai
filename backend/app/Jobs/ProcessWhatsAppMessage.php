@@ -15,6 +15,7 @@ use App\Services\DistanceService;
 use App\Services\InvoiceService;
 use App\Services\WhatsAppService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -317,11 +318,13 @@ class ProcessWhatsAppMessage
                         $dpAmount = (int) ($latestBooking->package->harga * 0.5);
                     }
 
-                    $latestBooking->update([
-                        'dp_amount' => $dpAmount ?? $latestBooking->dp_amount,
-                        'status'    => 'dp_paid',
-                    ]);
-                    $customer->update(['status' => 'booked']);
+                    DB::transaction(function () use ($latestBooking, $dpAmount, $customer) {
+                        $latestBooking->update([
+                            'dp_amount' => $dpAmount ?? $latestBooking->dp_amount,
+                            'status'    => 'dp_paid',
+                        ]);
+                        $customer->update(['status' => 'booked']);
+                    });
 
                     $waService->sendText($waId, $result['reply']);
                     ChatHistory::create(['customer_id' => $customer->id, 'role' => 'assistant', 'content' => $result['reply']]);
@@ -351,6 +354,7 @@ class ProcessWhatsAppMessage
 
         } catch (Throwable $e) {
             logger()->error('AI Vision error', ['message' => $e->getMessage()]);
+            throw $e;
         }
     }
 }

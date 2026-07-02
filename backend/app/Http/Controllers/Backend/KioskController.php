@@ -126,7 +126,7 @@ class KioskController extends Controller
         $dir = public_path('pricelists');
         if (! is_dir($dir)) mkdir($dir, 0755, true);
 
-        $ext      = $request->file('file')->getClientOriginalExtension();
+        $ext      = $request->file('file')->extension();
         $filename = 'kiosk-' . $kiosk->id . '-' . time() . '.' . $ext;
         $request->file('file')->move($dir, $filename);
 

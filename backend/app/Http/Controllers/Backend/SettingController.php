@@ -62,7 +62,7 @@ class SettingController extends Controller
         foreach ($validated as $key => $value) {
             if ($key === 'followup_enabled') {
                 Setting::set($key, $value ? '1' : '0');
-            } elseif (!is_null($value) && $value !== '') {
+            } elseif (!is_null($value)) {
                 Setting::set($key, $value);
             }
         }

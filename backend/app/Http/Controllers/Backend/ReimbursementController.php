@@ -35,7 +35,7 @@ class ReimbursementController extends Controller
             $dir     = public_path('reimbursements');
             if (! is_dir($dir)) mkdir($dir, 0775, true);
 
-            $filename = 'bukti-' . now()->format('Ymd-His') . '-' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $filename = 'bukti-' . now()->format('Ymd-His') . '-' . Str::random(6) . '.' . $file->extension();
             $file->move($dir, $filename);
             $data['bukti_path'] = 'reimbursements/' . $filename;
         }

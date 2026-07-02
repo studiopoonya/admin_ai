@@ -230,7 +230,9 @@ PROMPT;
                 ]);
                 return json_decode($response->getBody()->getContents(), true);
             } catch (GuzzleException $e) {
-                if ($attempt >= $maxAttempts) throw $e;
+                $status = method_exists($e, 'getResponse') && $e->getResponse()
+                    ? $e->getResponse()->getStatusCode() : 0;
+                if ($attempt >= $maxAttempts || ($status >= 400 && $status < 500)) throw $e;
                 usleep(500_000 * $attempt); // 0.5s → 1s
             }
         }
