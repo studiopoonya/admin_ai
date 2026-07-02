@@ -53,8 +53,8 @@ function Modal({ user, onClose, onSave }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-scaleIn">
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900">{isEdit ? 'Edit User' : 'Tambah User'}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">

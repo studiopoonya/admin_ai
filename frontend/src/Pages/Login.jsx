@@ -28,28 +28,28 @@ export default function Login() {
     return (
         <div className="min-h-screen flex">
             {/* Left panel */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 flex-col justify-between p-12">
-                <div className="flex items-center gap-3">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 flex-col justify-between p-12 overflow-hidden">
+                <div className="flex items-center gap-3 animate-fadeDown">
                     <img src={logo} alt="Studio Poonya" className="w-9 h-9 object-contain rounded-xl" />
                     <span className="text-white font-bold text-lg tracking-tight">Poonya Bot</span>
                 </div>
-                <div>
+                <div className="animate-fadeUp delay-150">
                     <h2 className="text-4xl font-bold text-white leading-tight mb-4">
                         Kelola percakapan<br />pelanggan dengan mudah
                     </h2>
                     <p className="text-indigo-200 text-base leading-relaxed">
                         Monitor chat WhatsApp, balas otomatis dengan AI, dan atur semua konfigurasi dari satu dashboard.
                     </p>
-                    <div className="mt-10 flex gap-4">
-                        <div className="bg-white/10 rounded-2xl px-5 py-4 backdrop-blur-sm">
+                    <div className="mt-10 flex gap-4 stagger-children">
+                        <div className="bg-white/10 rounded-2xl px-5 py-4 backdrop-blur-sm animate-fadeUp">
                             <p className="text-2xl font-bold text-white">AI</p>
                             <p className="text-indigo-200 text-xs mt-1">Auto Reply</p>
                         </div>
-                        <div className="bg-white/10 rounded-2xl px-5 py-4 backdrop-blur-sm">
+                        <div className="bg-white/10 rounded-2xl px-5 py-4 backdrop-blur-sm animate-fadeUp">
                             <p className="text-2xl font-bold text-white">WA</p>
                             <p className="text-indigo-200 text-xs mt-1">Cloud API</p>
                         </div>
-                        <div className="bg-white/10 rounded-2xl px-5 py-4 backdrop-blur-sm">
+                        <div className="bg-white/10 rounded-2xl px-5 py-4 backdrop-blur-sm animate-fadeUp">
                             <p className="text-2xl font-bold text-white">24/7</p>
                             <p className="text-indigo-200 text-xs mt-1">Online</p>
                         </div>
@@ -60,7 +60,7 @@ export default function Login() {
 
             {/* Right panel */}
             <div className="flex-1 flex items-center justify-center bg-gray-50 px-6 py-12">
-                <div className="w-full max-w-md">
+                <div className="w-full max-w-md animate-fadeUp">
                     <div className="lg:hidden flex items-center gap-2 mb-10">
                         <img src={logo} alt="Studio Poonya" className="w-8 h-8 object-contain rounded-lg" />
                         <span className="font-bold text-gray-800">Poonya Bot</span>

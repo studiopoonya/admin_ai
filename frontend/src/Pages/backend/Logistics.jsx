@@ -132,14 +132,14 @@ export default function Logistics() {
                 </div>
 
                 {/* Stats strip */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 stagger-children">
                     {[
                         { label: 'Total Item', value: items.length, icon: '📦' },
                         { label: 'Item Aktif', value: items.filter(i => i.aktif).length, icon: '✅' },
                         { label: 'Nilai Stok', value: formatRp(totalStockValue), icon: '💰' },
                         { label: 'Log Pengambilan', value: logs.length || '—', icon: '📋' },
                     ].map(s => (
-                        <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+                        <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3 animate-fadeUp">
                             <span className="text-2xl">{s.icon}</span>
                             <div>
                                 <p className="text-xs text-gray-400">{s.label}</p>
@@ -347,9 +347,9 @@ export default function Logistics() {
 
             {/* Item modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md">
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md animate-scaleIn">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <h2 className="font-semibold text-gray-900">{editing ? 'Edit Barang' : 'Tambah Barang'}</h2>
                             <button onClick={() => setShowModal(false)}
@@ -415,9 +415,9 @@ export default function Logistics() {
 
             {/* Delete item confirm */}
             {deleteTarget && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteTarget(null)} />
-                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4 animate-scaleIn">
                         <p className="font-semibold text-gray-900">Hapus <span className="text-indigo-600">{deleteTarget.nama}</span>?</p>
                         <p className="text-sm text-gray-500">Item ini akan dihapus dari inventaris.</p>
                         <div className="flex justify-end gap-3">
@@ -432,9 +432,9 @@ export default function Logistics() {
 
             {/* Delete log confirm */}
             {deleteLogTarget && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteLogTarget(null)} />
-                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4 animate-scaleIn">
                         <p className="font-semibold text-gray-900">Hapus log pengambilan?</p>
                         <p className="text-sm text-gray-500">Log {deleteLogTarget.staff_nama} — {formatDate(deleteLogTarget.tanggal)} akan dihapus.</p>
                         <div className="flex justify-end gap-3">
