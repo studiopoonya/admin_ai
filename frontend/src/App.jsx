@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 import PrivateRoute from '@/Components/PrivateRoute';
+import { useVersionCheck } from '@/hooks/useVersionCheck';
 import Login from '@/Pages/Login';
 import BookingForm from '@/Pages/BookingForm';
 import FormBookings from '@/Pages/backend/FormBookings';
@@ -32,6 +33,7 @@ import Database from '@/Pages/backend/Database';
 import PublicForm from '@/Pages/PublicForm';
 
 export default function App() {
+    useVersionCheck();
     return (
         <ToastProvider>
         <AuthProvider>

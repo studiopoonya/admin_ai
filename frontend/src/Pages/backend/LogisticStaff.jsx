@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import BackendLayout from '@/Layouts/BackendLayout';
 import api from '@/api/axios';
+import { useAuth } from '@/context/AuthContext';
 
 function formatRp(n) {
     if (!n && n !== 0) return '—';
@@ -13,7 +14,7 @@ function formatDate(d) {
 }
 
 // ─── Checkout form ────────────────────────────────────────────────────────────
-function CheckoutForm({ masterItems, onSuccess }) {
+function CheckoutForm({ masterItems, onSuccess, isAdmin }) {
     const [staffNama, setStaffNama]   = useState('');
     const [eventNama, setEventNama]   = useState('');
     const [bookingId, setBookingId]   = useState('');
@@ -158,12 +159,14 @@ function CheckoutForm({ masterItems, onSuccess }) {
                                                     onClick={e => e.preventDefault()}
                                                     className="w-14 px-2 py-1 text-sm text-center border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                                             </div>
-                                            <span className="text-xs font-semibold text-indigo-600 w-20 text-right flex-shrink-0">
-                                                {formatRp(item.harga * qty)}
-                                            </span>
+                                            {isAdmin && (
+                                                <span className="text-xs font-semibold text-indigo-600 w-20 text-right flex-shrink-0">
+                                                    {formatRp(item.harga * qty)}
+                                                </span>
+                                            )}
                                         </>
                                     )}
-                                    {!isChecked && (
+                                    {!isChecked && isAdmin && (
                                         <span className="text-xs text-gray-300 w-20 text-right flex-shrink-0">
                                             {formatRp(item.harga)} / {item.satuan}
                                         </span>
@@ -171,10 +174,12 @@ function CheckoutForm({ masterItems, onSuccess }) {
                                 </label>
                             );
                         })}
-                        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                            <span className="text-xs text-gray-400">Total estimasi nilai</span>
-                            <span className="text-sm font-bold text-indigo-600">{formatRp(total)}</span>
-                        </div>
+                        {isAdmin && (
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                                <span className="text-xs text-gray-400">Total estimasi nilai</span>
+                                <span className="text-sm font-bold text-indigo-600">{formatRp(total)}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -378,6 +383,8 @@ function ReturnForm({ onSuccess }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function LogisticStaff() {
+    const { user } = useAuth();
+    const isAdmin  = user?.role === 'admin';
     const [tab, setTab]           = useState('checkout');
     const [masterItems, setMasterItems] = useState([]);
     const [loadingItems, setLoadingItems] = useState(true);
@@ -454,7 +461,7 @@ export default function LogisticStaff() {
                             ? <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-10 text-center text-sm text-gray-400">
                                 Inventaris kosong. Admin perlu menambahkan barang terlebih dahulu.
                               </div>
-                            : <CheckoutForm masterItems={masterItems} onSuccess={setSuccessType} />
+                            : <CheckoutForm masterItems={masterItems} onSuccess={setSuccessType} isAdmin={isAdmin} />
                 )}
 
                 {tab === 'return' && (
