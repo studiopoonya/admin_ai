@@ -18,6 +18,9 @@ export default function Logistics() {
     const [tab, setTab]             = useState('inventory'); // 'inventory' | 'logs'
     const [items, setItems]         = useState([]);
     const [logs, setLogs]           = useState([]);
+    const [search, setSearch]       = useState('');
+    const [sortKey, setSortKey]     = useState('nama');
+    const [sortDir, setSortDir]     = useState('asc');
     const [loadingItems, setLoadingItems] = useState(true);
     const [loadingLogs, setLoadingLogs]   = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -82,6 +85,31 @@ export default function Logistics() {
 
     const totalStockValue = items.reduce((sum, i) => sum + i.qty * i.harga, 0);
 
+    const toggleSort = (key) => {
+        if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+        else { setSortKey(key); setSortDir('asc'); }
+    };
+
+    const displayItems = [...items]
+        .filter(i => i.nama.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => {
+            let va = a[sortKey], vb = b[sortKey];
+            if (typeof va === 'string') va = va.toLowerCase();
+            if (typeof vb === 'string') vb = vb.toLowerCase();
+            if (va < vb) return sortDir === 'asc' ? -1 : 1;
+            if (va > vb) return sortDir === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+    const SortIcon = ({ col }) => (
+        <svg className={`inline w-3 h-3 ml-1 transition-opacity ${sortKey === col ? 'opacity-100' : 'opacity-20'}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            {sortKey === col && sortDir === 'desc'
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                : <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />}
+        </svg>
+    );
+
     return (
         <BackendLayout>
             <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -137,6 +165,17 @@ export default function Logistics() {
                 {/* ─── Inventory Tab ─── */}
                 {tab === 'inventory' && (
                     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                        {/* Search bar */}
+                        <div className="px-4 py-3 border-b border-gray-100">
+                            <div className="relative max-w-xs">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input value={search} onChange={e => setSearch(e.target.value)}
+                                    placeholder="Cari barang..."
+                                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                            </div>
+                        </div>
                         {loadingItems ? (
                             <div className="p-8 text-center text-sm text-gray-400">Memuat...</div>
                         ) : items.length === 0 ? (
@@ -144,20 +183,30 @@ export default function Logistics() {
                                 <div className="text-4xl mb-3">📦</div>
                                 <p className="text-gray-500 text-sm">Belum ada barang. Tambah inventaris!</p>
                             </div>
+                        ) : displayItems.length === 0 ? (
+                            <div className="p-8 text-center text-sm text-gray-400">Tidak ada barang yang cocok dengan pencarian.</div>
                         ) : (
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                                        <th className="text-left px-5 py-3">Nama Barang</th>
-                                        <th className="text-center px-3 py-3">Qty Stok</th>
-                                        <th className="text-right px-3 py-3">Harga Satuan</th>
+                                        <th className="text-left px-5 py-3 cursor-pointer select-none hover:text-gray-600 transition" onClick={() => toggleSort('nama')}>
+                                            Nama Barang <SortIcon col="nama" />
+                                        </th>
+                                        <th className="text-center px-3 py-3 cursor-pointer select-none hover:text-gray-600 transition" onClick={() => toggleSort('qty')}>
+                                            Qty Stok <SortIcon col="qty" />
+                                        </th>
+                                        <th className="text-right px-3 py-3 cursor-pointer select-none hover:text-gray-600 transition" onClick={() => toggleSort('harga')}>
+                                            Harga Satuan <SortIcon col="harga" />
+                                        </th>
                                         <th className="text-right px-3 py-3">Total Nilai</th>
-                                        <th className="text-center px-3 py-3">Status</th>
+                                        <th className="text-center px-3 py-3 cursor-pointer select-none hover:text-gray-600 transition" onClick={() => toggleSort('aktif')}>
+                                            Status <SortIcon col="aktif" />
+                                        </th>
                                         <th className="px-3 py-3" />
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
-                                    {items.map(item => (
+                                    {displayItems.map(item => (
                                         <tr key={item.id} className={`hover:bg-gray-50 transition ${!item.aktif ? 'opacity-50' : ''}`}>
                                             <td className="px-5 py-3.5 font-medium text-gray-900">
                                                 {item.nama}

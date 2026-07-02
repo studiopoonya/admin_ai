@@ -19,10 +19,10 @@ function CheckoutForm({ masterItems, onSuccess }) {
     const [bookingId, setBookingId]   = useState('');
     const [bookings, setBookings]     = useState([]);
     const [tanggal, setTanggal]       = useState(new Date().toISOString().slice(0, 10));
-    const [catatan, setCatatan]       = useState('');
-    const [rows, setRows]             = useState([{ logistic_id: '', qty: 1 }]);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError]           = useState('');
+    const [catatan, setCatatan]           = useState('');
+    const [checkedItems, setCheckedItems] = useState({}); // { [item.id]: qty }
+    const [submitting, setSubmitting]     = useState(false);
+    const [error, setError]               = useState('');
 
     useEffect(() => {
         api.get('/logistic-staff/upcoming-bookings')
@@ -30,21 +30,32 @@ function CheckoutForm({ masterItems, onSuccess }) {
             .catch(() => {});
     }, []);
 
-    const addRow    = () => setRows(r => [...r, { logistic_id: '', qty: 1 }]);
-    const removeRow = (idx) => setRows(r => r.filter((_, i) => i !== idx));
-    const setRow    = (idx, key, val) => setRows(r => r.map((row, i) => i === idx ? { ...row, [key]: val } : row));
-    const getItem   = (id) => masterItems.find(i => i.id === Number(id));
+    const toggleItem = (id) => {
+        setCheckedItems(prev => {
+            if (prev[id] !== undefined) {
+                const { [id]: _, ...rest } = prev;
+                return rest;
+            }
+            return { ...prev, [id]: 1 };
+        });
+    };
 
-    const total = rows.reduce((sum, row) => {
-        const item = getItem(row.logistic_id);
-        return sum + (item ? item.harga * Number(row.qty || 0) : 0);
+    const setItemQty = (id, val) => {
+        setCheckedItems(prev => ({ ...prev, [id]: Math.max(1, Number(val) || 1) }));
+    };
+
+    const total = Object.entries(checkedItems).reduce((sum, [id, qty]) => {
+        const item = masterItems.find(i => i.id === Number(id));
+        return sum + (item ? item.harga * qty : 0);
     }, 0);
 
     const handleSubmit = async () => {
         setError('');
         if (!staffNama.trim()) { setError('Nama staff wajib diisi.'); return; }
-        const validRows = rows.filter(r => r.logistic_id && Number(r.qty) > 0);
-        if (!validRows.length) { setError('Tambahkan minimal 1 barang.'); return; }
+        const validRows = Object.entries(checkedItems)
+            .filter(([, qty]) => qty > 0)
+            .map(([id, qty]) => ({ logistic_id: Number(id), qty }));
+        if (!validRows.length) { setError('Pilih minimal 1 barang.'); return; }
 
         setSubmitting(true);
         try {
@@ -55,7 +66,7 @@ function CheckoutForm({ masterItems, onSuccess }) {
                 booking_id: bookingId ? Number(bookingId) : null,
                 tanggal,
                 catatan:    catatan || null,
-                items: validRows.map(r => ({ logistic_id: Number(r.logistic_id), qty: Number(r.qty) })),
+                items: validRows,
             });
             onSuccess('checkout');
         } catch (err) {
@@ -112,50 +123,52 @@ function CheckoutForm({ masterItems, onSuccess }) {
                 <div className="h-px bg-gray-100" />
 
                 <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Barang Dibawa</p>
-                        <button onClick={addRow}
-                            className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition">
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Tambah Barang
-                        </button>
-                    </div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                        Barang Dibawa
+                        {Object.keys(checkedItems).length > 0 && (
+                            <span className="ml-2 normal-case font-medium text-indigo-500">
+                                {Object.keys(checkedItems).length} item dipilih
+                            </span>
+                        )}
+                    </p>
 
                     <div className="space-y-2">
-                        {rows.map((row, idx) => {
-                            const selectedItem = getItem(row.logistic_id);
+                        {masterItems.map(item => {
+                            const isChecked = checkedItems[item.id] !== undefined;
+                            const qty = checkedItems[item.id] ?? 1;
                             return (
-                                <div key={idx} className="flex items-center gap-2">
-                                    <select value={row.logistic_id}
-                                        onChange={e => setRow(idx, 'logistic_id', e.target.value)}
-                                        className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-                                        <option value="">— Pilih barang —</option>
-                                        {masterItems.map(item => (
-                                            <option key={item.id} value={item.id}>{item.nama} ({item.satuan})</option>
-                                        ))}
-                                    </select>
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-xs text-gray-400">Qty</span>
-                                        <input type="number" min="1" value={row.qty}
-                                            onChange={e => setRow(idx, 'qty', e.target.value)}
-                                            className="w-16 px-2 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 text-center" />
-                                    </div>
-                                    {selectedItem && (
-                                        <span className="text-xs text-gray-400 w-24 text-right flex-shrink-0">
-                                            {formatRp(selectedItem.harga * Number(row.qty || 0))}
+                                <label key={item.id}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${
+                                        isChecked
+                                            ? 'border-indigo-200 bg-indigo-50'
+                                            : 'border-gray-100 bg-white hover:border-gray-200'
+                                    }`}>
+                                    <input type="checkbox" checked={isChecked} onChange={() => toggleItem(item.id)}
+                                        className="w-4 h-4 rounded accent-indigo-600 flex-shrink-0" />
+                                    <span className="flex-1 text-sm font-medium text-gray-800">
+                                        {item.nama}
+                                        <span className="ml-1 text-gray-400 font-normal">/ {item.satuan}</span>
+                                    </span>
+                                    {isChecked && (
+                                        <>
+                                            <div className="flex items-center gap-1.5" onClick={e => e.preventDefault()}>
+                                                <span className="text-xs text-gray-400">Qty</span>
+                                                <input type="number" min="1" value={qty}
+                                                    onChange={e => setItemQty(item.id, e.target.value)}
+                                                    onClick={e => e.preventDefault()}
+                                                    className="w-14 px-2 py-1 text-sm text-center border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                                            </div>
+                                            <span className="text-xs font-semibold text-indigo-600 w-20 text-right flex-shrink-0">
+                                                {formatRp(item.harga * qty)}
+                                            </span>
+                                        </>
+                                    )}
+                                    {!isChecked && (
+                                        <span className="text-xs text-gray-300 w-20 text-right flex-shrink-0">
+                                            {formatRp(item.harga)} / {item.satuan}
                                         </span>
                                     )}
-                                    {rows.length > 1 && (
-                                        <button onClick={() => removeRow(idx)}
-                                            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition flex-shrink-0">
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    )}
-                                </div>
+                                </label>
                             );
                         })}
                         <div className="flex justify-between items-center pt-2 border-t border-gray-100">
