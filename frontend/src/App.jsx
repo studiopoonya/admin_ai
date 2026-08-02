@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from '@/context/AuthContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 import PrivateRoute from '@/Components/PrivateRoute';
+import { roleHome } from '@/constants/roleHome';
 import { useVersionCheck } from '@/hooks/useVersionCheck';
 import Login from '@/Pages/Login';
 import BookingForm from '@/Pages/BookingForm';
@@ -32,6 +33,13 @@ import CustomerDetail from '@/Pages/backend/CustomerDetail';
 import Database from '@/Pages/backend/Database';
 import PublicForm from '@/Pages/PublicForm';
 
+// Admins see the chat/customer dashboard; other roles skip it for their own default page.
+function Home() {
+    const { user } = useAuth();
+    if (user?.role !== 'admin') return <Navigate to={roleHome(user?.role)} replace />;
+    return <Dashboard />;
+}
+
 export default function App() {
     useVersionCheck();
     return (
@@ -44,7 +52,7 @@ export default function App() {
                     <Route path="/booking" element={<BookingForm />} />
                     <Route path="/staff"   element={<StaffCheckin />} />
                     <Route path="/feedback" element={<FeedbackForm />} />
-                    <Route path="/home"      element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                    <Route path="/home"      element={<PrivateRoute><Home /></PrivateRoute>} />
                     <Route path="/settings"  element={<PrivateRoute roles={['admin']}><Settings /></PrivateRoute>} />
                     <Route path="/packages"  element={<PrivateRoute><Packages /></PrivateRoute>} />
                     <Route path="/broadcast" element={<PrivateRoute roles={['admin']}><Broadcast /></PrivateRoute>} />

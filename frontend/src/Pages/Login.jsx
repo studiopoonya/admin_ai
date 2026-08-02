@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { roleHome } from '@/constants/roleHome';
 import logo from '@/assets/Logo-Studio-Poonya.png';
 
 export default function Login() {
@@ -16,8 +17,7 @@ export default function Login() {
         setError('');
         try {
             const loggedUser = await login(form.email, form.password);
-            const dest = loggedUser?.role === 'staff_logistic' ? '/logistics' : '/home';
-            navigate(dest);
+            navigate(roleHome(loggedUser?.role));
         } catch (err) {
             setError(err.response?.data?.message || 'Email atau password salah.');
         } finally {
