@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookingFormController;
+use App\Http\Controllers\DeployWebhookController;
 use App\Http\Controllers\Backend\AnalyticsController;
 use App\Http\Controllers\Backend\AuthController;
 use App\Http\Controllers\Backend\KioskController;
@@ -30,6 +31,9 @@ use Illuminate\Support\Facades\Route;
 // WhatsApp webhook (public)
 Route::get('/webhook/whatsapp',  [WhatsAppController::class, 'verify']);
 Route::post('/webhook/whatsapp', [WhatsAppController::class, 'handle']);
+
+// GitHub deploy webhook (public — verified via HMAC signature)
+Route::post('/webhook/deploy', [DeployWebhookController::class, 'handle']);
 
 // Public booking form
 Route::get('/booking-form/packages', [BookingFormController::class, 'packages']);

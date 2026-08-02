@@ -49,4 +49,8 @@ return [
         'verify_token'    => env('WA_VERIFY_TOKEN'),
     ],
 
+    'deploy_webhook' => [
+        'secret' => env('DEPLOY_WEBHOOK_SECRET'),
+    ],
+
 ];
